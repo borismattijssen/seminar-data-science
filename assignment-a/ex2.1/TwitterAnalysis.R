@@ -34,6 +34,8 @@ library(RColorBrewer)
 library(wordcloud)
 install.packages("reshape", dependencies=T)
 library(reshape)
+# install.packages("rstudioapi", dependencies = TRUE)
+library(rstudioapi)
 
 ################### functions
 
