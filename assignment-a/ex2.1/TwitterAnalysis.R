@@ -69,7 +69,7 @@ clearTweets <- function(tweets, excl) {
 
 ## capture all the output to a file.
 
-sink("output.txt")
+#sink("output.txt")
 
 ################# Collect from Twitter
 
@@ -143,6 +143,7 @@ semFrame$Candidate <-factor(semFrame$Candidate, labels=c("Justin Bieber", "Bened
 
 ################## Below insert your own code to answer question 1. The data you need can be found in semFrame
 #subquestion 2 - homogeneity of variance 
+#TODO if we have time, check that second argument is correct/needed
 leveneTest(semFrame$score,semFrame$Candidate)
 
 #subquestion 3 - histogram of variation of tweets
@@ -159,17 +160,19 @@ mBO <- mean(semFrame$score[semFrame$Candidate == "Barack Obama"])
 mBO
 
 means <- c(mJB,mBC,mBO)
+#TODO find out if this plot is what is requested, seems too simple
 plot(means)
 
 #subquestion 5 - linear model
 model0 <- lm(score ~ 1, data = semFrame)
 model1 <- lm(score ~ Candidate, data = semFrame)   
 anova(model0,model1)
-summary(model1)
-anova(model1)
+
+#summary(model1)
+#anova(model1)
 
 #subquestion 6 - post hoc analysis if needed
 pairwise.t.test(semFrame$score, semFrame$Candidate, paired = FALSE, p.adjust.method = "bonferroni")
 
 ######### stop redireting output.
-sink()
+#sink()

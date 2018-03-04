@@ -13,20 +13,44 @@ library(rstudioapi)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
+logisticPseudoR2s <- function(LogModel)
+  #taken from Andy Fields et al. book on R, p.334
+{
+  dev <- LogModel$deviance
+  nullDev <- LogModel$null.deviance
+  modelN <- length(LogModel$fitted.values)
+  R.l <- 1 - dev / nullDev
+  R.cs <- 1 - exp(-(nullDev - dev) / modelN)
+  R.n <- R.cs / (1 - (exp(-(nullDev / modelN))))
+  cat("Pseudo R^2 for logistic regression\n")
+  cat("Hosmer and Lemshow R^2:  ", round(R.l, 3), "\n")
+  cat("Cox and Snell R^2:       ", round(R.cs, 3), "\n")
+  cat("Nagelkerke R^2:          ", round(R.n, 3), "\n")
+}
+
+
 q4 <- read.csv("ex2.4_dataset.csv", header=TRUE)
 
 #binomial accepts only 0 and 1 values, not 2
-q4$X1[q4$X1 == 2] <- 0
-q4$X1.1[q4$X1.1== 2] <- 0
+q4$Gender[q4$Gender == 2] <- 0
+q4$Age.Range[q4$Age.Range== 2] <- 0
 
 #subquestion 2 - logistic regression
-model0 <- glm(X1 ~ 1, data = q4, family = binomial())
-model1 <- glm(X1 ~ X4512 , data = q4, family = binomial())
-model2 <- glm(X1 ~ X1530, data = q4, family = binomial())
 
+#Centering predictors, this will make easier to interpret predictors
+q4$Head.Size <-q4$Head.Size - mean(q4$Head.Size)
+q4$Brain.Weight <-q4$Brain.Weight - mean(q4$Brain.Weight)
+
+
+model0 <- glm(Gender ~ 1, data = q4, family = binomial())
+model1 <- glm(Gender ~ Head.Size , data = q4, family = binomial())
+model2 <- glm(Gender ~ Brain.Weight, data = q4, family = binomial())
+
+#TODO, find out which one of model1 or model2 is better and use it in following commands
 anova(model0,model1,model2,test = "Chisq" )
 
 summary(model1)
+summary(model2)
 
 #need to check which model improves data and keep only that
 logisticPseudoR2s(model1)
@@ -36,7 +60,7 @@ exp(model1$coefficients)
 
 #odds ration confidence interval
 exp(confint(model1))
-q4$X1pred <- fitted(model1)
+q4$Genderpred <- fitted(model1)
 
 #subquestion 3 - crosstable of predicted and observed values
-CrossTable(q4$X1pred, q4$X1, prop.c=FALSE, prop.t=FALSE, prop.chisq=FALSE, fisher=FALSE, chisq=FALSE, expected = FALSE)
+CrossTable(q4$Genderpred, q4$Gender, prop.c=FALSE, prop.t=FALSE, prop.chisq=FALSE, fisher=FALSE, chisq=FALSE, expected = FALSE)

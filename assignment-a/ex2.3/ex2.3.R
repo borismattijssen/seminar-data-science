@@ -33,6 +33,7 @@ lm.beta(model) #give standardized Beta values
 #subquestion 5
 
 ###### Assumption tests 
+#TODO, some assumptions are missing
 
 #testing independence of error
 durbinWatsonTest(model)
@@ -45,6 +46,7 @@ vif(model)
 #leveneTest(model)
 #shapiro.test(model)
 
+#TODO, not sure if needed
 hist(model$residuals)
 hist(rstudent(model))
 plot(model$residuals, model$fitted)
@@ -54,4 +56,4 @@ plot(model)
 
 #subquestion 6 - DFBeta
 dfbeta(model)
-hatvalues(model2)
+hatvalues(model)
