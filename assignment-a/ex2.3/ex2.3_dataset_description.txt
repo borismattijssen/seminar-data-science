@@ -1,0 +1,24 @@
+Dataset:  hybrid_reg.csv
+
+Source: D-J. Lim, S.R. Jahromi, T.R. Anderson, A-A. Tudorie (2014). 
+"Comparing Technological Advancement of Hybrid Electric Vehicles (HEV) in
+Different Market Segments," Technological Forecasting & Social Change,
+http://dx.doi.org/10.1016/j.techfore.2014.05.008
+
+Description: Prices (MSRP, in 2013 $) for 154 hybrid models. Also included
+are model year, acceleration rate, fuel economy (mpg), and max of MPG
+and MPGe for fully electric (plug-is). MPGe = 33.7*driverange/batterycapacity.
+Model classes: C = Compact, M = Midsize, TS = 2 Seater, L + Large,
+PT = Pickup Truck, MV = Minivan, SUV = Sport Utility Vehicle
+
+Variables/Labels
+Vehicle id   (carid)
+Vehicle     (vehicle)
+Model Year   (year)
+Manufacturer's suggested retail price in 2013 $  (msrp)
+acceleration rate in km/hour/second   (accelrate)
+Fuel economy in miles/gallon   (mpg)
+Max of Mpg and Mpge   (mpgmpge)
+Model class   (carclass)
+Model class ID  (carclass_id)
+

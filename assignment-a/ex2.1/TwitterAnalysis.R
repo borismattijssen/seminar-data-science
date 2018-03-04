@@ -10,32 +10,35 @@
 # also see https://silviaplanella.wordpress.com/2014/12/31/sentiment-analysis-twitter-and-r/
 ############################################################################################
 
-setwd("~/dev/github/borismattijssen/seminar-data-science/assignment-a") 
-# apple , note use / instead of \, which used by windows
+# use rstudioapi package to get file directory
+library(rstudioapi)
+
+# set working directory to match this file's directory
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
-install.packages("twitteR", dependencies = TRUE)
+#install.packages("twitteR", dependencies = TRUE)
 library(twitteR)
-install.packages("RCurl", dependencies = T)
+#install.packages("RCurl", dependencies = T)
 library(RCurl)
-install.packages("bitops", dependencies = T)
+#install.packages("bitops", dependencies = T)
 library(bitops)
-install.packages("plyr", dependencies = T)
+#install.packages("plyr", dependencies = T)
 library(plyr)
-install.packages('stringr', dependencies = T)
+#install.packages('stringr', dependencies = T)
 library(stringr)
-install.packages("NLP", dependencies = T)
+#install.packages("NLP", dependencies = T)
 library(NLP)
-install.packages("tm", dependencies = T)
+#install.packages("tm", dependencies = T)
 library(tm)
-install.packages("wordcloud", dependencies=T)
-install.packages("RColorBrewer", dependencies=TRUE)
+#install.packages("wordcloud", dependencies=T)
+#install.packages("RColorBrewer", dependencies=TRUE)
 library(RColorBrewer)
 library(wordcloud)
-install.packages("reshape", dependencies=T)
+#install.packages("reshape", dependencies=T)
 library(reshape)
-# install.packages("rstudioapi", dependencies = TRUE)
-library(rstudioapi)
+library(car) #Package includes Levene's test 
+
 
 ################### functions
 
@@ -139,9 +142,34 @@ names(semFrame) <- c("Candidate", "score")
 semFrame$Candidate <-factor(semFrame$Candidate, labels=c("Justin Bieber", "Benedict Cumberbatch", "Barack Obama")) # change the labels for your celibrities
 
 ################## Below insert your own code to answer question 1. The data you need can be found in semFrame
+#subquestion 2 - homogeneity of variance 
+leveneTest(semFrame$score,semFrame$Candidate)
 
+#subquestion 3 - histogram of variation of tweets
+hist(semFrame$score[semFrame$Candidate == "Justin Bieber"])
+hist(semFrame$score[semFrame$Candidate == "Benedict Cumberbatch"])
+hist(semFrame$score[semFrame$Candidate == "Barack Obama"])
 
+#subquestion 4 - mean of sentiments of tweets
+mJB <- mean(semFrame$score[semFrame$Candidate == "Justin Bieber"])
+mJB
+mBC <- mean(semFrame$score[semFrame$Candidate == "Benedict Cumberbatch"])
+mBC
+mBO <- mean(semFrame$score[semFrame$Candidate == "Barack Obama"])
+mBO
 
+means <- c(mJB,mBC,mBO)
+plot(means)
+
+#subquestion 5 - linear model
+model0 <- lm(score ~ 1, data = semFrame)
+model1 <- lm(score ~ Candidate, data = semFrame)   
+anova(model0,model1)
+summary(model1)
+anova(model1)
+
+#subquestion 6 - post hoc analysis if needed
+pairwise.t.test(semFrame$score, semFrame$Candidate, paired = FALSE, p.adjust.method = "bonferroni")
 
 ######### stop redireting output.
 sink()
