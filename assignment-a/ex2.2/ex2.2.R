@@ -8,14 +8,16 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 WebVisit <- read.csv(file="./webvisit0.csv", header=TRUE, sep=",")
 
 # plot the page visits in a histogram
-hist(WebVisit$pages)
+hist(WebVisit[WebVisit[, "version"] == 0,]$pages, main="Version == 0")
+hist(WebVisit[WebVisit[, "version"] == 1,]$pages, main="Version == 1")
+hist(WebVisit[WebVisit[, "portal"] == 0,]$pages, main="Portal == 0")
+hist(WebVisit[WebVisit[, "portal"] == 1,]$pages, main="Portal == 1")
 
-# model 
-model <- lm(pages ~ version + portal + version:portal , data = WebVisit, na.action = na.exclude)
+# model analysis
+model <- lm(pages ~ version + portal + version:portal, data = WebVisit, na.action = na.exclude)
+anova(model)
 
-# TODO
+# do the simple effect analysis
 WebVisit$simple <- interaction(WebVisit$version, WebVisit$portal) 
-levels(WebVisit$simple)
-
 simpleEffectModel <-lm(pages ~ simple , data = WebVisit, na.action = na.exclude)
-anova(simpleEffectModel)
+summary.lm(simpleEffectModel)
