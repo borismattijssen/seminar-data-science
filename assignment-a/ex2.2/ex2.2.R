@@ -13,6 +13,9 @@ hist(WebVisit[WebVisit[, "version"] == 1,]$pages, main="Version == 1")
 hist(WebVisit[WebVisit[, "portal"] == 0,]$pages, main="Portal == 0")
 hist(WebVisit[WebVisit[, "portal"] == 1,]$pages, main="Portal == 1")
 
+# shapiro-wilk test for normal distribution
+shapiro.test(WebVisit$pages)
+
 # model analysis
 model <- lm(pages ~ version + portal + version:portal, data = WebVisit, na.action = na.exclude)
 anova(model)
