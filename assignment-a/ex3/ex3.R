@@ -15,18 +15,16 @@ p3 <- read.csv("set1.csv",header = TRUE)
 #question 1 - histogram to see distribution and scatterplot to see relation
 hist(p3$score)
 
-#TODO, not sure this is the correct plot
-scatter <- ggplot(p3, aes(score, session))
-scatter +geom_point() +geom_smooth(method="lm")# facet_wrap(~Subject,2,5) # make scate plot
+
+scatterplot(p3$session,p3$score)
 
 #question 2 - multilevel analysis
-#TODO, this model maybe is not the one that is requested
-baseline <- lme(score ~ 1, data = p3, random=~1|session,  method = "ML")
+baseline <- lm(score ~ 1, data = p3)
 summary(baseline)
 
 
 randomIntercept<- lme(score ~ session, data = p3, random=~1|Subject, method = "ML")
 summary(randomIntercept)
 
-intervals(baseline, 0.95)
+confint(baseline)
 intervals(randomIntercept, 0.95)

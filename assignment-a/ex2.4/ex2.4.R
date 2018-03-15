@@ -1,4 +1,4 @@
-library(car) #Package includes Levene's test 
+library(car) #Package includes Levene's test
 #install.packages('tidyr',dependencies = TRUE)
 library(tidyr)  # for wide to long format transformation of the data
 library(ggplot2)
@@ -45,24 +45,24 @@ q4$Brain.Weight <-q4$Brain.Weight - mean(q4$Brain.Weight)
 model0 <- glm(Gender ~ 1, data = q4, family = binomial())
 model1 <- glm(Gender ~ Head.Size , data = q4, family = binomial())
 model2 <- glm(Gender ~ Brain.Weight, data = q4, family = binomial())
-model3 <- glm(Gender ~ Head.Size + Brain.Weight, data = q4, family = binomial())
 
-#TODO, find out which one of model1 or model2 is better and use it in following commands
 anova(model0,model1,test = "Chisq" )
-anova(model0,model2,test = "Chisq" )
+anova(model0,model2,test = "Chisq")
 
-summary(model1)
-summary(model2)
+#summary(model1)
+#summary(model2)
 
+model3 <-glm(Gender ~ Brain.Weight + Head.Size, data = q4, family = binomial())
+anova(model0,model3,test = "Chisq")
 #need to check which model improves data and keep only that
 logisticPseudoR2s(model3)
 
 #odds ratio
-exp(model1$coefficients)
+exp(model3$coefficients)
 
 #odds ration confidence interval
-exp(confint(model1))
-q4$Genderpred <- fitted(model1)
+exp(confint(model3))
+q4$Genderpred <- fitted(model3)
 
 #subquestion 3 - crosstable of predicted and observed values
 CrossTable(q4$Genderpred, q4$Gender, prop.c=FALSE, prop.t=FALSE, prop.chisq=FALSE, fisher=FALSE, chisq=FALSE, expected = FALSE)
