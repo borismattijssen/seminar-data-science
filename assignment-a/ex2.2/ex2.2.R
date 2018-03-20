@@ -17,10 +17,10 @@ hist(WebVisit[WebVisit[, "portal"] == 1,]$pages, main="Portal == 1")
 shapiro.test(WebVisit$pages)
 
 # model analysis
-model <- lm(pages ~ version + portal + version:portal, data = WebVisit, na.action = na.exclude)
-anova(model)
+model <- glm(pages ~ version + portal + version:portal, data = WebVisit, family=poisson(), na.action = na.exclude)
+anova(model,test="Chisq")
 
 # do the simple effect analysis
 WebVisit$simple <- interaction(WebVisit$version, WebVisit$portal) 
-simpleEffectModel <-lm(pages ~ simple , data = WebVisit, na.action = na.exclude)
-summary.lm(simpleEffectModel)
+simpleEffectModel <-glm(pages ~ simple , data = WebVisit, family=poisson(), na.action = na.exclude)
+summary.glm(simpleEffectModel)
