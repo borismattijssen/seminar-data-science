@@ -1,62 +1,125 @@
 library(rstudioapi)
-library(stats)
-library(graphics)
-library(ggplot2)
-library(QuantPsyc) #include lm.beta()
+library(robustHD)
 library(car)
+library(nlme)
 
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 d <- read.csv("data.csv")
-str(d)
 
-#sort data based on score in descending order
-i <- order(d$score,decreasing=TRUE)
-dd <- data.frame(d$metric[i],d$dataset[i],d$topic[i],d$token[i],d$lug[i],d$model[i],d$score[i])
+######## Data analysis
 
-#naive attempt to find the best systems, 6895 is the final index where score is one
-hist(dd$d.topic.i[1:6895])
-barplot(dd$d.score.i[1:6895],names.arg=dd$d.dataset.i.[1:6895])
-barplot(dd$d.score.i[1:6895],names.arg=dd$d.metric.i.[1:6895])
-barplot(dd$d.score.i[1:6895],names.arg=dd$d.token.i.[1:6895])
-barplot(dd$d.score.i[1:6895],names.arg=dd$d.lug.i.[1:6895])
-barplot(dd$d.score.i[1:6895],names.arg=dd$d.model.i.[1:6895])
+# dataset boxplots
+boxplot(score~dataset,data=d, main="Score per dataset", xlab="Dataset", ylab="Score")
+boxplot(score~dataset,data=d[d$metric == 'err'], main="Score per dataset for metric == 'err'", xlab="Dataset", ylab="Score")
+boxplot(score~topic,data=d, main="Score per topic", xlab="Topic", ylab="Score")
+boxplot(score~metric,data=d, main="Score per metric", xlab="Metric", ylab="Score")
+boxplot(score~model,data=d, main="Score per model", xlab="Model", ylab="Score")
 
-#example of an expression to get a specific system only from the data
-d$score[d$token=="indri" & d$model=="bb2" & d$lug=="krovetz"] 
+# remove outliers from the ap metric
+d2 <- subset(d, (d$metric != 'ap' | !d$score %in% boxplot.stats(d$score[d$metric == 'ap'])$out))
+# standardize scores
+d2$score[d2$metric == 'ap'] = (d2$score[d2$metric == 'ap'] - mean(d2$score[d2$metric == 'ap'])) / sd(d2$score[d2$metric == 'ap'])
+d2$score[d2$metric == 'err'] = (d2$score[d2$metric == 'err'] - mean(d2$score[d2$metric == 'err'])) / sd(d2$score[d2$metric == 'err'])
+d2$score[d2$metric == 'ndcg'] = (d2$score[d2$metric == 'ndcg'] - mean(d2$score[d2$metric == 'ndcg'])) / sd(d2$score[d2$metric == 'ndcg'])
+d2$score[d2$metric == 'p10'] = (d2$score[d2$metric == 'p10'] - mean(d2$score[d2$metric == 'p10'])) / sd(d2$score[d2$metric == 'p10'])
+d2$score[d2$metric == 'rbp'] = (d2$score[d2$metric == 'rbp'] - mean(d2$score[d2$metric == 'rbp'])) / sd(d2$score[d2$metric == 'rbp'])
 
-#initial attempt to get the best systems
-s <- data.matrix(d$score)
-mat <- matrix(s,nrow=1000,ncol=612)
-m <- colMeans((mat))
-s <- sort(m,decreasing=TRUE,index.return=TRUE)
-s$ix[1:3]
+# show scores per metric
+boxplot(score~metric,data=d2, main="Score per metric", xlab="Metric", ylab="Score")
+boxplot(score~topic,data=d2, main="Score per topic", xlab="Topic", ylab="Score")
 
-#normal distiribution test
-shapiro.test(mat[,397])
+# effect analysis of dataset and topic
+model0 <- lm(score ~ 1, data = d2, na.action = na.exclude)
+model1 <- lm(score ~ dataset, data = d2, na.action = na.exclude)
+d2$topic <- factor(d2$topic, levels = c(351:550), labels = c(351:550))
+d$topic <- factor(d$topic, levels = c(351:550), labels = c(351:550))
+model2 <- lm(score ~ topic, data = d2, na.action = na.exclude)
+anova(model2)
 
-#question 1b - compare the effect of each value of the predictor variables by checking the sign and magnitude of their coefficients
-baseline <- lm(score ~ 1,data=d,na.action=na.exclude)
-model <-lm(score ~ + lug  + model + token , data = d, na.action = na.exclude)
-
-anova(baseline,model)
+#use linear model to predict scores with dataset and topic variables for the initial dataset and the one with the standardized aggregated scores
+model <- lm(score ~ dataset + topic,data=d,na.action = na.exclude)
+model1 <- lm(score ~ dataset + topic,data=d2,na.action = na.exclude)
+#use the summaries to compare the systems because ANOVA can't be performed for different dataset sizes
 summary(model)
-
-#best systems
-best1 <- d[246,]
-best2 <- d[222,]
-best3 <- d[240,]
-
-#check interaction effects
-model1 <- lm(score~ +lug + model + token +lug:model + lug:token + model:token,data=d,na.action=na.exclude)
-anova(baseline,model1)
 summary(model1)
 
+# only select dataset trec10
+d3 <- subset(d2, d2$dataset == 'trec10')
+# only select 15 topics with least variance
+topics_sds <- aggregate(d3$score ~ d3$topic, FUN=sd)
+s <- sort(topics_sds$`d3$score`, index.return=TRUE)
+top15topics <- topics_sds$`d3$topic`[s$ix[0:15]]
+d4 <- subset(d3, d3$topic %in% top15topics)
 
-model2 <- lm(score~ lug,data=d,na.action=na.exclude)
-anova(baseline,model2)
-summary(model2)
+# pick top 3 systems
+systems <- aggregate(d3$score ~ d3$token + d3$lug + d3$model, FUN=mean)
+s <- sort(systems$`d3$score`, index.return=TRUE, decreasing = TRUE)
+top3 <- systems[s$ix[0:3],]
+top3
 
-#homogeneity of variance
-leveneTest(d$score,d$topic)
 
+
+######## Component analysis
+
+#create a different subset for each best system combination of two steady components, token has not been compared yet  
+d4 <- subset(d3,d3$token=="terrier" & d3$model=="dph")
+d5 <- subset(d3,d3$token=="terrier" & d3$lug=="snowballPorter")
+d6 <- subset(d3,d3$token=="terrier" & d3$lug=="porter")
+d7 <- subset(d3,d3$token=="terrier" & d3$model=="jskls")
+
+
+#model0 <- lm(score ~ 1, data = d3, na.action = na.exclude)
+#model1 <- lm(score ~ lug + token + model, data = d2, na.action = na.exclude)
+
+
+#create a model for each of the subsets created above
+#model2 <- lm(score ~ token, data = d4, na.action = na.exclude)
+model3 <- lm(score ~ model, data = d5, na.action = na.exclude)
+model4 <- lm(score ~ lug, data = d4, na.action = na.exclude)
+model5 <- lm(score ~ model, data = d6, na.action = na.exclude)
+model6 <- lm(score ~ lug, data = d7, na.action = na.exclude)
+#anova(model2)
+
+
+#token <- coef(model2)
+#sd(token)
+#mean(token)
+#sum(token)
+
+#get the coeffcients for the component variable of each model and check its statistical properties
+model <- coef(model3)
+sd(model)
+mean(model)
+sum(model)
+
+lug <- coef(model4)
+sd(lug)
+mean(lug)
+sum(lug)
+
+model <- coef(model5)
+sd(model)
+mean(model)
+sum(model)
+
+lug <- coef(model6)
+sd(lug)
+mean(lug)
+sum(lug)
+
+#temporary solution to extracting top3 information
+d8 <- top3
+d8$score <- top3$`d3$score`
+d8$model < top3$`d3$model`
+d8$lug <- top3$`d3$lug`
+d8$token <- top3$`d3$token`
+
+#try to create a multilevel analysis model using the component variable as fixed effects 
+#and the two steady components as random effects/grouping, not sure if correct
+baseline <- lme(score ~ lug,data=d8,random=~1|token,method="ML")
+summary(baseline)
+
+#use a linear model for the same purpose
+model0 <- lm(d3$score~d3$lug,data=top3,na.action=na.exclude)
+summary(model0)
