@@ -19,12 +19,14 @@ hist(p3$score)
 scatterplot(p3$session,p3$score)
 
 #question 2 - multilevel analysis
-baseline <- lm(score ~ 1, data = p3)
-summary(baseline)
 
+baseline <- lme(score ~ 1,data=p3,random=~1|Subject,method="ML")
+summary(baseline)
 
 randomIntercept<- lme(score ~ session, data = p3, random=~1|Subject, method = "ML")
 summary(randomIntercept)
 
-confint(baseline)
+anova(baseline,randomIntercept)
+
+intervals(baseline, 0.95)
 intervals(randomIntercept, 0.95)
