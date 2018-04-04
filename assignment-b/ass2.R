@@ -1,5 +1,4 @@
 library(rstudioapi)
-library(robustHD)
 library(car)
 library(nlme)
 
@@ -46,11 +45,6 @@ summary(model1)
 
 # only select dataset trec10
 d3 <- subset(d2, d2$dataset == 'trec10')
-# only select 15 topics with least variance
-topics_sds <- aggregate(d3$score ~ d3$topic, FUN=sd)
-s <- sort(topics_sds$`d3$score`, index.return=TRUE)
-top15topics <- topics_sds$`d3$topic`[s$ix[0:15]]
-d4 <- subset(d3, d3$topic %in% top15topics)
 
 # pick top 3 systems
 systems <- aggregate(d3$score ~ d3$token + d3$lug + d3$model, FUN=mean)
@@ -62,64 +56,20 @@ top3
 
 ######## Component analysis
 
-#create a different subset for each best system combination of two steady components, token has not been compared yet  
-d4 <- subset(d3,d3$token=="terrier" & d3$model=="dph")
-d5 <- subset(d3,d3$token=="terrier" & d3$lug=="snowballPorter")
-d6 <- subset(d3,d3$token=="terrier" & d3$lug=="porter")
-d7 <- subset(d3,d3$token=="terrier" & d3$model=="jskls")
+# dataset with lug varying freely
+d_lug <- subset(d3,d3$token=="terrier" & (d3$model=="dph" | d3$model=="jskls"))
+model_lug <- lm(score ~ lug, data=d_lug, na.action = na.exclude)
+anova(model_lug)
 
+# dataset with model varying freely
+d_model <- subset(d3,d3$token=="terrier" & (d3$lug=="snowballPorter" | d3$lug=="porter"))
+model_model <- lm(score ~ model, data=d_model, na.action = na.exclude)
+anova(model_model)
 
-#model0 <- lm(score ~ 1, data = d3, na.action = na.exclude)
-#model1 <- lm(score ~ lug + token + model, data = d2, na.action = na.exclude)
-
-
-#create a model for each of the subsets created above
-#model2 <- lm(score ~ token, data = d4, na.action = na.exclude)
-model3 <- lm(score ~ model, data = d5, na.action = na.exclude)
-model4 <- lm(score ~ lug, data = d4, na.action = na.exclude)
-model5 <- lm(score ~ model, data = d6, na.action = na.exclude)
-model6 <- lm(score ~ lug, data = d7, na.action = na.exclude)
-#anova(model2)
-
-
-#token <- coef(model2)
-#sd(token)
-#mean(token)
-#sum(token)
-
-#get the coeffcients for the component variable of each model and check its statistical properties
-model <- coef(model3)
-sd(model)
-mean(model)
-sum(model)
-
-lug <- coef(model4)
-sd(lug)
-mean(lug)
-sum(lug)
-
-model <- coef(model5)
-sd(model)
-mean(model)
-sum(model)
-
-lug <- coef(model6)
-sd(lug)
-mean(lug)
-sum(lug)
-
-#temporary solution to extracting top3 information
-d8 <- top3
-d8$score <- top3$`d3$score`
-d8$model < top3$`d3$model`
-d8$lug <- top3$`d3$lug`
-d8$token <- top3$`d3$token`
-
-#try to create a multilevel analysis model using the component variable as fixed effects 
-#and the two steady components as random effects/grouping, not sure if correct
-baseline <- lme(score ~ lug,data=d8,random=~1|token,method="ML")
-summary(baseline)
-
-#use a linear model for the same purpose
-model0 <- lm(d3$score~d3$lug,data=top3,na.action=na.exclude)
-summary(model0)
+# dataset with token varying freely
+d_token <- subset(d3,
+                  (d3$model=="dph" | d3$model=="jskls")  &
+                  (d3$lug=="snowballPorter" | d3$lug=="porter")
+            )
+model_token <- lm(score ~ token, data=d_token, na.action = na.exclude)
+anova(model_token)
