@@ -1,4 +1,4 @@
-library(car) #Package includes Levene's test
+library(car) #Package includes Levene's test 
 #install.packages('tidyr',dependencies = TRUE)
 library(tidyr)  # for wide to long format transformation of the data
 library(ggplot2)
@@ -34,6 +34,7 @@ q4 <- read.csv("ex2.4_dataset.csv", header=TRUE)
 #binomial accepts only 0 and 1 values, not 2
 q4$Gender[q4$Gender == 2] <- 0
 q4$Age.Range[q4$Age.Range== 2] <- 0
+q4$Gender<-factor(q4$Gender, levels = c(0:1), labels = c("Female","Male"))
 
 #subquestion 2 - logistic regression
 
@@ -62,7 +63,12 @@ exp(model3$coefficients)
 
 #odds ration confidence interval
 exp(confint(model3))
-q4$Genderpred <- fitted(model3)
+
+
+q4$Genderpred[fitted(model3) <=0.5] <- 0
+q4$Genderpred[fitted(model3) > 0.5] <- 1
+q4$Genderpred<-factor(q4$Genderpred, levels = c(0:1), labels = c("Female","Male"))
+
 
 #subquestion 3 - crosstable of predicted and observed values
 CrossTable(q4$Genderpred, q4$Gender, prop.c=FALSE, prop.t=FALSE, prop.chisq=FALSE, fisher=FALSE, chisq=FALSE, expected = FALSE)

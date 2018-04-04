@@ -25,11 +25,16 @@ scatterplot(msrp ~ mpgmpge, data = q3)
 scatterplot(msrp ~ accelrate, data = q3)
 
 #subquestion 4 - linear regression
-model <-lm(msrp ~ + mpg + mpgmpge + accelrate , data = q3, na.action = na.exclude )
+model1 <-lm(msrp ~ + mpg, data = q3, na.action = na.exclude )
+model2 <-lm(msrp ~ + mpg + mpgmpge , data = q3, na.action = na.exclude )
+model3 <-lm(msrp ~ + mpg + mpgmpge + accelrate , data = q3, na.action = na.exclude )
 
-summary(model)
-confint(model) #gives CI95% of the estimates (B-values)
-lm.beta(model) #give standardized Beta values
+anova(model1,model2)
+anova(model2,model3)
+
+summary(model3)
+confint(model3) #gives CI95% of the estimates (B-values)
+lm.beta(model3) #give standardized Beta values
 
 
 #subquestion 5
@@ -37,21 +42,19 @@ lm.beta(model) #give standardized Beta values
 ###### Assumption tests 
 
 #testing independence of error
-durbinWatsonTest(model)
+durbinWatsonTest(model3)
 
 #test of multicollinearity
-vif(model)
-1/vif(model) # Tolerance
+vif(model3)
 
-#leveneTest(q3$msrp)
-shapiro.test(q3$msrp)
 
-hist(model$residuals)
-hist(rstudent(model))
-plot(model$residuals, model$fitted)
-plot(model)
+
+hist(model3$residuals)
+hist(rstudent(model3))
+plot(model3$residuals, model3$fitted)
+plot(model3)
 
 
 
 #subquestion 6 - DFBeta
-dfbeta(model)
+dfbeta(model3)
