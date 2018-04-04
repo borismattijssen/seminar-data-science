@@ -66,8 +66,6 @@ i = i(1:find(i,1,'last'));
 j = j(1:find(j,1,'last'));
 v = v(1:find(v,1,'last'));
 
-j
-
 % add the 1/2 from the definition
 v = v*.5;
 
