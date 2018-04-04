@@ -1,23 +1,17 @@
+clear
 image=imread('blurryImage.png');
 [h w d]=size(image);
 U = double(reshape(image,w*h,d))/255;
+%% Write your method here
 cs = 3.2;
 cu = 0.5;
-%% Write your method here
-%g = zeros(h*w,d);
-%for i=1:h*w
-%    for j=1:3
-%        g(i,j) = (U(i+1,j) - U(i,j) + U(i-1,j) - U(i,j) + U(i+w,j) - U(i,j) + U(i-w,j) - U(i,j))/2;
-%    end
-%end
-
 
 G = gradient(h,w);
 g = G * U;
 
 L = G'*G;
 rightside = cs*G'*g + cu*U;
-leftside =  L + cu*eye();
+leftside =  L + cu*speye(size(L));
 
 
 U2 = leftside\rightside;

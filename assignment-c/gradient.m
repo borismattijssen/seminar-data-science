@@ -35,8 +35,8 @@ for x=1:w
 end
 
 % calculate horizontal gradients
-for y=1:h
-    for x=1:w-1
+for x=1:w-1
+    for y=1:h
         j(pointer_v) = y + (x-1)*h;
         j(pointer_v+1) = y + x*h;
         
