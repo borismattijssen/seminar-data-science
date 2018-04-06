@@ -27,5 +27,8 @@ for i=hs+2*ws-2:2*hs+2*ws-2
     T(i) = v;
     v = v + 1;
 end
-S = sparse(T,ones(size(T)),ones(size(T)));
+T(i+1) = hd*wd;
+v = ones(size(T));
+v(size(T,2)) = 0;
+S = sparse(T,T,v);
 end
