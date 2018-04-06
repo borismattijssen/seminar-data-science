@@ -1,29 +1,27 @@
 clc
-img = [
-    1 5  9 13;
-    2 6 10 14;
-    3 7 11 15;
-    4 8 12 16];
+w = 4;
+h = 4;
+img = rand(h,w)*256;
 g_expected = 0.5*[
-        0
-    0
-    0
-    0
-    6 - 7
-    0
-    0
-    10 - 11
     0
     0
     0
     0
+    img(2,2) - img(3,2)
+    0
+    0
+    img(2,3) - img(3,3)
     0
     0
     0
     0
     0
-    10 - 6
-    11 - 7
+    0
+    0
+    0
+    0
+    img(2,3) - img(2,2)
+    img(3,3) - img(3,2)
     0
     0
     0
@@ -37,6 +35,6 @@ U = double(reshape(img,w*h,1));
 G = gradient(h,w);
 
 g = G*U;
-g = boundary_gradients_zero(g, w, h);
+g = boundary_gradients_zero(g, h, w);
 
 sum(g_expected == g) == length(g_expected)

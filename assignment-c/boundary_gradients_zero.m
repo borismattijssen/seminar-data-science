@@ -1,4 +1,4 @@
-function [ g ] = boundary_gradients_zero( g, w, h )
+function [ g ] = boundary_gradients_zero( g, h, w )
 %UNTITLED5 Summary of this function goes here
 %   Detailed explanation goes here
 

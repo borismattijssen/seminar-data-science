@@ -19,8 +19,8 @@ g_black = G*U_extended_black;
 g_white = G*U_extended_white;
 
 % set to zero
-g_black = boundary_gradients_zero(g_black, w_extended, h_extended);
-g_white = boundary_gradients_zero(g_white, w_extended, h_extended);
+g_black = boundary_gradients_zero(g_black, h_extended, w_extended);
+g_white = boundary_gradients_zero(g_white, h_extended, w_extended);
 
 % compare
 [g_height g_width] = size(g_black);

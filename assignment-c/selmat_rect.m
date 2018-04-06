@@ -1,4 +1,4 @@
-function [ S ] = selmat_square( w,h )
+function [ S ] = selmat_rect( h,w )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 

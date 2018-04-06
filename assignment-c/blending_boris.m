@@ -35,19 +35,19 @@ U_targetbox = double(reshape(targetbox,w_targetbox*h_targetbox,d_targetbox))/255
 figure, imshow(targetbox);
 
 %% Optimize
-a = 5;
+a = 2;
 
 %inner and boundary gradients only
 G = gradient(h_extended, w_extended);
 
 %selector matrix, boundary pixels only
-S = selmat_square(w_extended, h_extended);
+S = selmat_rect(h_extended, w_extended);
 
 %gradients of source image
 g = G * U_extended;
 
 %set boundary gradients to zero
-g = boundary_gradients_zero(g, w_extended, h_extended);
+g = boundary_gradients_zero(g, h_extended, w_extended);
 
 % make vector of boundary pixels
 U_b = S * U_targetbox;
