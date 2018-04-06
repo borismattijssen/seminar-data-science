@@ -35,8 +35,5 @@ function [ g ] = boundary_gradients_zero( g, w, h )
     offset_right = offset_left + (w-2)*h;
     g(offset_right:offset_right+h-1,:) = 0;
     
-    
-    
-
 end
 
