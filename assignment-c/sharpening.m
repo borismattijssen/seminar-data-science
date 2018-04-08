@@ -17,10 +17,10 @@ U2 = leftside\rightside;
 image =uint8(reshape(U,h,w,d)*255);
 figure
 subplot(2,1,1), imshow(image)
-title("Original Image")
+title('Original Image')
 
 image2 =uint8(reshape(U2,h,w,d)*255);
 subplot(2,1,2), imshow(image2)
-title("Sharpened Image")
+title('Sharpened Image')
 
 imwrite(image2,output_filename)
